@@ -5,6 +5,7 @@
  */
 package client;
 
+import client.Utils.Crypto;
 import client.entity.MonHoc;
 import com.google.gson.Gson;
 import java.awt.Color;
@@ -35,6 +36,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
     public static Socket socket;
     public static BufferedWriter out;
     public static BufferedReader in;
+    public static Crypto crypto;
 
     public List<List<tkb>> convertJsonToArray(String jsonString) {
         JSONArray jsonArray = new JSONArray(jsonString);
@@ -52,21 +54,14 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         return result;
     }
 
-    public ChonMonHoc(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
+    public ChonMonHoc(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) throws IOException {
         this.socket = socket;
         this.out = bufferedWriter;
         this.in = bufferedReader;
 
         initComponents();
-        //load data to table
-//        btnxem.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                
-//                
-//            }
-//        });
-
+        //ma hoa
+        sendKey();
     }
 
     public ChonMonHoc() {
@@ -74,8 +69,16 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
     }
 
     public void send(String data) throws IOException {
+
         out.write(data + '\n');
         out.flush();
+    }
+    public void sendKey()throws IOException {
+        crypto = new Crypto();
+        String _3DesKey = crypto.getKey();
+         String key="key#"+crypto.encryptRSA(_3DesKey);
+         out.write(key + '\n');
+         out.flush();
     }
 
     private String receive() throws IOException {

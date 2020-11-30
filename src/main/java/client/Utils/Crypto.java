@@ -1,11 +1,10 @@
-package client;
+package client.Utils;
 
 import javax.crypto.*;
 import javax.crypto.spec.DESedeKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.security.spec.KeySpec;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
@@ -94,16 +93,18 @@ public class Crypto
         }
     }
 
-    private String encryptRSA(String data)
+    public String encryptRSA(String data)
     {
         String strEncrypt = "";
         try
         {
+
             Cipher c = Cipher.getInstance("RSA");
             c.init(Cipher.ENCRYPT_MODE, publicKeyRSA);
             byte encryptOut[] = c.doFinal(data.getBytes());
 
             strEncrypt = Base64.getEncoder().encodeToString(encryptOut);
+
         }
         catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
                 BadPaddingException | IllegalBlockSizeException e)
