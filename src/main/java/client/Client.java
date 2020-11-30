@@ -31,7 +31,7 @@ public class Client
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     
 		//gui = new GUI(socket,out,in);
-                ChonMonHoc chonMonHoc =new ChonMonHoc(socket,in,out);
+		ChonMonHoc chonMonHoc =new ChonMonHoc(socket,in,out);
 		ReceiveServer recv = new ReceiveServer(socket, in);
 		executor.execute(chonMonHoc);
 		//executor.execute(recv);

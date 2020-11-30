@@ -12,6 +12,7 @@ client/Test2.class
 client/ChonMonHoc$2.class
 client/show.class
 client/ChonMonHoc$1.class
+client/Crypto.class
 client/ReceiveServer.class
 client/entity/MonHoc.class
 client/ChonMonHoc$3.class

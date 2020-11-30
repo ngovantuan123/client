@@ -8,6 +8,8 @@ package client;
 import client.entity.MonHoc;
 import com.google.gson.Gson;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.BufferedReader;
@@ -16,6 +18,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,35 +30,19 @@ import org.modelmapper.ModelMapper;
  *
  * @author tuangh
  */
-public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
+public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
 
-    private Socket socket;
-    private BufferedWriter out;
-    private BufferedReader in;
-    /**
-     * Creates new form ChonMonHoc
-     * @param socket
-     * @param bufferedReader
-     * @param bufferedWriter
-     */
-    public void send(String data) throws IOException {
-        out.write(data+'\n');
-        out.flush();
-    }
-    private String receive() throws IOException {
-        String input = in.readLine();
-        if (input == null)
-            return "";
+    public static Socket socket;
+    public static BufferedWriter out;
+    public static BufferedReader in;
 
-        return input; // giai ma hoa
-    }
-    public List<List<tkb>> convertJsonToArray(String jsonString){
-        JSONArray jsonArray= new JSONArray(jsonString);
+    public List<List<tkb>> convertJsonToArray(String jsonString) {
+        JSONArray jsonArray = new JSONArray(jsonString);
         List<List<tkb>> result = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONArray temp = (JSONArray) jsonArray.get(i);
             List<tkb> tkbs = new ArrayList<>();
-            for(int j =0;j<temp.length();j++){
+            for (int j = 0; j < temp.length(); j++) {
 
                 tkb tkb = new Gson().fromJson(temp.get(j).toString(), tkb.class);
                 tkbs.add(tkb);
@@ -62,30 +51,89 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
         }
         return result;
     }
-    public ChonMonHoc(Socket socket,BufferedReader bufferedReader,BufferedWriter bufferedWriter) {
-        this.socket=socket;
+
+    public ChonMonHoc(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
+        this.socket = socket;
         this.out = bufferedWriter;
-        this.in =bufferedReader;
-        
+        this.in = bufferedReader;
+
         initComponents();
         //load data to table
-        
+//        btnxem.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                
+//                
+//            }
+//        });
+
     }
-    public ChonMonHoc (){
+
+    public ChonMonHoc() {
         initComponents();
     }
-    public void loaddatatableMonHoc(JSONArray array){
-        //tblmonhoc.setModel(new DefaultTableModel());
-        DefaultTableModel defaultTableModel = (DefaultTableModel)tblmonhoc.getModel();
-        defaultTableModel.setRowCount(0);
-        for (int i=0; i < array.length(); i++) {
-            JSONObject mh = (JSONObject) array.get(i);
-            Object obj[]={"",mh.get("maMH"),mh.get("tenMonHoc"),"",""};
-            defaultTableModel.addRow(obj);
-        }
-        tblmonhoc.setModel(defaultTableModel);        
+
+    public void send(String data) throws IOException {
+        out.write(data + '\n');
+        out.flush();
     }
-    
+
+    private String receive() throws IOException {
+        String input = in.readLine();
+        if (input == null) {
+            return "";
+        }
+
+        return input; // giai ma hoa
+    }
+
+    public void loaddatatableMonHoc(JSONArray array) {
+        //tblmonhoc.setModel(new DefaultTableModel());
+        DefaultTableModel defaultTableModel = (DefaultTableModel) tblmonhoc.getModel();
+        defaultTableModel.setRowCount(0);
+
+        DefaultTableModel model = new DefaultTableModel() {
+            public Class<?> getColumnClass(int column) {
+
+                switch (column) {
+                    case 0:
+                        return Boolean.class;
+                    case 1:
+                        return String.class;
+                    case 2:
+                        return String.class;
+                    case 3:
+                        return String.class;
+                    case 4:
+                        return String.class;
+                    case 5:
+                        return String.class;
+                    case 6:
+                        return String.class;
+                    default:
+                        return String.class;
+                }
+            }
+        };
+        tblmonhoc.setModel(model);
+        model.addColumn("Select");
+        model.addColumn("Mã môn học");
+        model.addColumn("Tên môn học");
+        model.addColumn("Số tín chỉ");
+        model.addColumn("Xem");
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject mh = (JSONObject) array.get(i);
+            model.addRow(new Object[0]);
+            model.setValueAt(false, i, 0);
+            model.setValueAt(mh.get("maMH"), i, 1);
+            model.setValueAt(mh.get("tenMonHoc"), i, 2);
+            model.setValueAt(mh.get("soTinChi"), i, 3);
+            model.setValueAt("", i, 4);
+            //Object obj[]={"",mh.get("maMH"),mh.get("tenMonHoc"),mh.get("soTinChi"),""};
+            //defaultTableModel.addRow(obj);
+        }
+        //tblmonhoc.setModel(defaultTableModel);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -98,10 +146,11 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
 
         jPanel1 = new javax.swing.JPanel();
         cbckhoa = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
+        btnxem = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblmonhoc = new javax.swing.JTable();
         jTextField1 = new javax.swing.JTextField();
+        btnxepthoikhoabieu = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -114,10 +163,10 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
             }
         });
 
-        jButton1.setText("Xem");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnxem.setText("Xem");
+        btnxem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnxemActionPerformed(evt);
             }
         });
 
@@ -129,7 +178,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
                 .addGap(114, 114, 114)
                 .addComponent(cbckhoa, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
+                .addComponent(btnxem)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -138,7 +187,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbckhoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addComponent(btnxem))
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
@@ -194,6 +243,13 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
             }
         });
 
+        btnxepthoikhoabieu.setText("Xếp Thời Khóa Biểu");
+        btnxepthoikhoabieu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnxepthoikhoabieuActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -201,13 +257,19 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(38, 38, 38))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(38, 38, 38))
+                .addComponent(btnxepthoikhoabieu)
+                .addGap(57, 57, 57))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -216,9 +278,10 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnxepthoikhoabieu))
         );
 
         pack();
@@ -232,37 +295,78 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnxemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxemActionPerformed
         // TODO add your handling code here:
         try {
-            String[] listMK = ((String[])cbckhoa.getSelectedItem());
-           String makhoa=listMK[0];
+            String value = cbckhoa.getSelectedItem().toString();
+            String makhoa = value.split("-")[0];
             //send("841403;841315;841304;841067");
             send("hello");
-            String input="";
-            while (true){
+            String input = "";
+            while (true) {
                 input = receive();
-                if (input.isEmpty()){
+                if (input.isEmpty()) {
                     continue;
-                }
-                else{
+                } else {
 
-                    JSONArray jSONArray=  new JSONArray(input);
+                    JSONArray jSONArray = new JSONArray(input);
                     loaddatatableMonHoc(jSONArray);
 
-
                 }
 
-                System.out.println("[Server] "+input);
+                System.out.println("[Server] " + input);
                 break;
             }
-
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }//GEN-LAST:event_btnxemActionPerformed
+
+    private void btnxepthoikhoabieuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxepthoikhoabieuActionPerformed
+        // TODO add your handling code here:
+        List<String> request = new ArrayList<>();
+        String ketQua ="";
+        for (int i = 0; i < tblmonhoc.getRowCount(); i++) {
+            Boolean chked = Boolean.valueOf(tblmonhoc.getValueAt(i, 0)
+                    .toString());
+            String dataCol1 = tblmonhoc.getValueAt(i, 1).toString();
+            if (chked) {
+                request.add(dataCol1);
+            }
+        }
+        if (request.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Chưa chọn môn nào ... ");
+        } else {
+            for(String str :request){
+                ketQua +=str+";";
+            }
+        }
+       ketQua = ketQua.substring(0, ketQua.length() - 1);
+       ketQua = "xepthoikhoabieu#"+ketQua;
+        try {
+            send(ketQua);
+            String input = "";
+            while (true) {
+                input = receive();
+                if (input.isEmpty()) {
+                    continue;
+                } else {
+                    input =input.split("#")[1];
+                    JSONArray jSONArray = new JSONArray(input);                 
+                    new show(GUI.tkbs=convertJsonToArray(input).get(1));
+
+                }
+
+                System.out.println("[Server] " + input);
+                break;
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ChonMonHoc.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnxepthoikhoabieuActionPerformed
 
     /**
      * @param args the command line arguments
@@ -300,8 +404,9 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable{
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnxem;
+    private javax.swing.JButton btnxepthoikhoabieu;
     private javax.swing.JComboBox<String> cbckhoa;
-    private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField1;
