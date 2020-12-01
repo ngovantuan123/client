@@ -36,7 +36,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
     public static Socket socket;
     public static BufferedWriter out;
     public static BufferedReader in;
-    public static Crypto crypto;
+    public static Crypto crypto ;
 
     public List<List<tkb>> convertJsonToArray(String jsonString) {
         JSONArray jsonArray = new JSONArray(jsonString);
@@ -61,6 +61,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
 
         initComponents();
         //ma hoa
+        crypto =new Crypto();
         sendKey();
     }
 
@@ -68,26 +69,31 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         initComponents();
     }
 
-    public void send(String data) throws IOException {
+    public void send(String data) {
+        try{
+            out.write(crypto.encrypt(data));
+            out.newLine();
+            out.flush();
+        }catch (IOException e) {}
 
-        out.write(data + '\n');
-        out.flush();
     }
-    public void sendKey()throws IOException {
-        crypto = new Crypto();
-        String _3DesKey = crypto.getKey();
-         String key="key#"+crypto.encryptRSA(_3DesKey);
-         out.write(key + '\n');
-         out.flush();
+    public void sendKey() {
+
+        try{
+            out.write(crypto.getKey());
+            out.newLine();
+            out.flush();
+        }catch (IOException e) {}
     }
 
     private String receive() throws IOException {
-        String input = in.readLine();
+        String input=in.readLine();
+        input = crypto.decrypt(input);
         if (input == null) {
             return "";
         }
 
-        return input; // giai ma hoa
+        return input;
     }
 
     public void loaddatatableMonHoc(JSONArray array) {
