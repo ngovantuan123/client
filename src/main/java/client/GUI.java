@@ -415,7 +415,7 @@ public class GUI extends JFrame implements Runnable {
                 }
                 else{
                     //GUI.tkbs=convertJsonToArray(input);
-                    new show(GUI.tkbs=convertJsonToArray(input).get(1));
+                    //new show(GUI.tkbs=convertJsonToArray(input).get(1));
                 }
 
                 System.out.println("[Server] "+input);            }

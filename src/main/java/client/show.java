@@ -19,10 +19,12 @@ public class show extends JFrame  {
     DefaultTableModel model = new DefaultTableModel();
     JScrollPane scroll;
     List<tkb> tkbs;
+    String title1;
     String[] data = {"AA", "BB", "CC", "DD", "EE", "FF", "GG", "HH", "II", "JJ",
             "KK", "LL", "MM", "NN", "OO", "PP", "QQ", "RR"};
-    public show(List<tkb> tkbs) {
-        this.tkbs =tkbs;
+    public show(List<tkb> tkbs,String tt) {
+        this.tkbs = tkbs;
+        this.title1 = tt;
 
 
         String[][] a = new String[11][8];
@@ -245,7 +247,7 @@ public class show extends JFrame  {
         table.setRowHeight(50);
 
 
-        frame = new JFrame();
+        frame = new JFrame(tt);
         JPanel panel = new JPanel(new BorderLayout());
         panel.setLayout(new BorderLayout());
         JPanel newPanel = new JPanel(new GridBagLayout());

@@ -53,6 +53,14 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         }
         return result;
     }
+    public List<tkb> convertJsonArrayToList(JSONArray jsonArray){
+        List<tkb> tkbs = new ArrayList<>();
+        for (int j = 0; j < jsonArray.length(); j++) {
+            tkb tkb = new Gson().fromJson(jsonArray.get(j).toString(), tkb.class);
+            tkbs.add(tkb);
+        }
+        return tkbs;
+    }
 
     public ChonMonHoc(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) throws IOException {
         this.socket = socket;
@@ -411,10 +419,23 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
                 if (input.isEmpty()) {
                     continue;
                 } else {
-                    JSONArray jSONArray = new JSONArray(input); 
-                    System.out.println(jSONArray.length());
-                    List<tkb> test= convertJsonToArray(input).get(0);
-                    new show(test);
+                    JSONObject jsonObject = new JSONObject(input);
+                    JSONArray bt = (JSONArray)jsonObject.get("binhthuong");
+                    JSONArray itbuoi = (JSONArray)jsonObject.get("itBuoinhat");
+                    JSONArray itngay = (JSONArray)jsonObject.get("itNgaynhat");
+                    JSONArray toansang = (JSONArray)jsonObject.get("toansang");
+                    List<tkb> binhthuong= convertJsonArrayToList(bt);
+                    List<tkb> buoi= convertJsonArrayToList(itbuoi);
+                    List<tkb> ngay= convertJsonArrayToList(itngay);
+                    List<tkb> sang= convertJsonArrayToList(toansang);
+
+                    new show(binhthuong,"Binh thuong");
+                    new show(buoi,"it buoi nhat");
+                    new show(ngay,"it ngay nhat");
+                    new show(sang,"toan buoi sang");
+
+
+
                     //GUI a = new GUI();
                             
 
