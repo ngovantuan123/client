@@ -31,7 +31,6 @@ public class Crypto
 				KeyPair kp = kpg.genKeyPair();
 				PublicKey publicKeyRSA = kp.getPublic();
 				PrivateKey privateKeyRSA = kp.getPrivate();
-
 				String pubKeyStr = Base64.getEncoder().encodeToString(publicKeyRSA.getEncoded());
 				String priKeyStr = Base64.getEncoder().encodeToString(privateKeyRSA.getEncoded());
 			*/

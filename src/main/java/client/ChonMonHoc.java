@@ -58,7 +58,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         this.socket = socket;
         this.out = bufferedWriter;
         this.in = bufferedReader;
-
+        crypto=new Crypto();
         initComponents();
         //ma hoa
         sendKey();
@@ -70,26 +70,44 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
 
     public void send(String data) throws IOException {
 
-        out.write(data + '\n');
-        out.flush();
+        try{
+            out.write(crypto.encrypt(data));
+            out.newLine();
+            out.flush();
+        }catch (IOException e) {}
+
     }
-    public void sendKey()throws IOException {
-        crypto = new Crypto();
-        String _3DesKey = crypto.getKey();
-         String key="key#"+crypto.encryptRSA(_3DesKey);
-         out.write(key + '\n');
-         out.flush();
+    public void sendKey() {
+
+        try{
+            out.write(crypto.getKey());
+            out.newLine();
+            out.flush();
+        }catch (IOException e) {}
     }
 
     private String receive() throws IOException {
-        String input = in.readLine();
+        String input=in.readLine();
+        input = crypto.decrypt(input);
         if (input == null) {
             return "";
         }
 
-        return input; // giai ma hoa
+        return input;
     }
-
+    public void loaddatatableChitiet(JSONArray array) {
+        //tblmonhoc.setModel(new DefaultTableModel());
+        DefaultTableModel defaultTableModel = (DefaultTableModel) tblchitiet.getModel();
+        defaultTableModel.setRowCount(0);
+        for (int i = 0; i < array.length(); i++) {
+            JSONArray mh =  (JSONArray)array.get(i);
+           // defaultTableModel.addRow(new Object[0]);
+            
+            Object obj[]={mh.get(0),mh.get(1),mh.get(2),mh.get(3),mh.get(4),mh.get(5),mh.get(6),mh.get(7),mh.get(8)};
+            defaultTableModel.addRow(obj);
+        }
+        tblchitiet.setModel(defaultTableModel);
+    }
     public void loaddatatableMonHoc(JSONArray array) {
         //tblmonhoc.setModel(new DefaultTableModel());
         DefaultTableModel defaultTableModel = (DefaultTableModel) tblmonhoc.getModel();
@@ -120,8 +138,8 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         };
         tblmonhoc.setModel(model);
         model.addColumn("Select");
-        model.addColumn("Mã môn học");
-        model.addColumn("Tên môn học");
+        model.addColumn("Mã môn h�?c");
+        model.addColumn("Tên môn h�?c");
         model.addColumn("Số tín chỉ");
         model.addColumn("Xem");
         for (int i = 0; i < array.length(); i++) {
@@ -154,12 +172,14 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         tblmonhoc = new javax.swing.JTable();
         jTextField1 = new javax.swing.JTextField();
         btnxepthoikhoabieu = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblchitiet = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Chọn khoa"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Ch?n khoa"));
 
-        cbckhoa.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CT-CNTT", "DV-Điện tử viễn  thông", "GM-Mầm non", "GT-Giáo dục tiểu học", "KT-Sư phạm kĩ thuật", "LC-Giáo dục chính trị", "LU-Luật", "MI-Nghệ thuật", "MO-Khoa học môi trường", "NN-Ngoại ngữ", "NT-Nghệ thuật", "QD-Quản trị kinh doanh", "QG-Giáo dục", "QP-An ninh quốc phòng", "TD-Toán ứng dụng", "TE-Tài chính kế toán", "TN-Sư phạm khoa học tự nhiên", "TT-Thư viện văn phòng", "VD-Quan hệ quốc tế", "XH-Sư phạm Khoa học xã hội" }));
+        cbckhoa.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CT-CNTT", "DV-?i?n t? vi?n  th�ng", "GM-M?m non", "GT-Gi�o d?c ti?u h?c", "KT-S? ph?m k? thu?t", "LC-Gi�o d?c ch�nh tr?", "LU-Lu?t", "MI-Ngh? thu?t", "MO-Khoa h?c m�i tr??ng", "NN-Ngo?i ng?", "NT-Ngh? thu?t", "QD-Qu?n tr? kinh doanh", "QG-Gi�o d?c", "QP-An ninh qu?c ph�ng", "TD-To�n ?ng d?ng", "TE-T�i ch�nh k? to�n", "TN-S? ph?m khoa h?c t? nhi�n", "TT-Th? vi?n v?n ph�ng", "VD-Quan h? qu?c t?", "XH-S? ph?m Khoa h?c x� h?i" }));
         cbckhoa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbckhoaActionPerformed(evt);
@@ -191,26 +211,28 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbckhoa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnxem))
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         tblmonhoc.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
-                "", "Mã môn học", "Tên môn học ", "Số tín chỉ", "Chi tiết"
+                "Ch?n", "M� m�n h?c", "T�n m�n h?c ", "S? t�n ch?"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        tblmonhoc.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblmonhocMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tblmonhoc);
@@ -219,7 +241,6 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
             tblmonhoc.getColumnModel().getColumn(1).setResizable(false);
             tblmonhoc.getColumnModel().getColumn(2).setResizable(false);
             tblmonhoc.getColumnModel().getColumn(3).setResizable(false);
-            tblmonhoc.getColumnModel().getColumn(4).setResizable(false);
         }
 
         jTextField1.setText("Search...");
@@ -246,20 +267,53 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
             }
         });
 
-        btnxepthoikhoabieu.setText("Xếp Thời Khóa Biểu");
+        btnxepthoikhoabieu.setText("X?p Th?i Kh�a Bi?u");
         btnxepthoikhoabieu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnxepthoikhoabieuActionPerformed(evt);
             }
         });
 
+        tblchitiet.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "M� nh�m", "L?p", "S? s?", "Gi?ng vi�n", "Ph�ng", "S? ti?t", "Th?", "Th?c h�nh", "Ti?t b?t ??u"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblchitiet.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblchitietMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tblchitiet);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnxepthoikhoabieu)
+                .addGap(54, 54, 54))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2)
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
@@ -269,10 +323,6 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(38, 38, 38))))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnxepthoikhoabieu)
-                .addGap(57, 57, 57))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -281,10 +331,12 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnxepthoikhoabieu)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnxepthoikhoabieu))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -304,7 +356,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
             String value = cbckhoa.getSelectedItem().toString();
             String makhoa = value.split("-")[0];
             //send("841403;841315;841304;841067");
-            send("hello");
+            send("Khoa#"+makhoa);
             String input = "";
             while (true) {
                 input = receive();
@@ -328,8 +380,11 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_btnxemActionPerformed
 
     private void btnxepthoikhoabieuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxepthoikhoabieuActionPerformed
-        // TODO add your handling code here:
-        List<String> request = new ArrayList<>();
+        if(tblmonhoc.getModel().getRowCount() == 0){
+            JOptionPane.showMessageDialog(null, "Ch?a ch?n ");
+            
+        }else{
+            List<String> request = new ArrayList<>();
         String ketQua ="";
         for (int i = 0; i < tblmonhoc.getRowCount(); i++) {
             Boolean chked = Boolean.valueOf(tblmonhoc.getValueAt(i, 0)
@@ -340,7 +395,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
             }
         }
         if (request.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Chưa chọn môn nào ... ");
+            JOptionPane.showMessageDialog(null, "Chưa ch�?n môn nào ... ");
         } else {
             for(String str :request){
                 ketQua +=str+";";
@@ -356,9 +411,12 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
                 if (input.isEmpty()) {
                     continue;
                 } else {
-                    input =input.split("#")[1];
-                    JSONArray jSONArray = new JSONArray(input);                 
-                    new show(GUI.tkbs=convertJsonToArray(input).get(1));
+                    JSONArray jSONArray = new JSONArray(input); 
+                    System.out.println(jSONArray.length());
+                    List<tkb> test= convertJsonToArray(input).get(0);
+                    new show(test);
+                    //GUI a = new GUI();
+                            
 
                 }
 
@@ -368,8 +426,44 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(ChonMonHoc.class.getName()).log(Level.SEVERE, null, ex);
         }
+        }
+        
         
     }//GEN-LAST:event_btnxepthoikhoabieuActionPerformed
+
+    private void tblchitietMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblchitietMouseClicked
+        
+    }//GEN-LAST:event_tblchitietMouseClicked
+
+    private void tblmonhocMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblmonhocMouseClicked
+        int column = 1;
+        int row = tblmonhoc.getSelectedRow();
+        String value = tblmonhoc.getModel().getValueAt(row, column).toString();
+         try {
+            
+            String makhoa = value.split("-")[0];
+            
+            send("Chitiet#"+value);
+            String input = "";
+            while (true) {
+                input = receive();
+                if (input.isEmpty()) {
+                    continue;
+                } else {
+                    
+                    JSONArray jSONArray = new JSONArray(input);
+                    loaddatatableChitiet(jSONArray);
+
+                }
+
+                System.out.println("[Server] " + input);
+                break;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_tblmonhocMouseClicked
 
     /**
      * @param args the command line arguments
@@ -412,7 +506,9 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
     private javax.swing.JComboBox<String> cbckhoa;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTable tblchitiet;
     private javax.swing.JTable tblmonhoc;
     // End of variables declaration//GEN-END:variables
 

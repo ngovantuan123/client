@@ -317,11 +317,16 @@ public class show extends JFrame  {
                     setBackground(new Color(40, 42, 54));
                 } else if (table.getValueAt(row, colNo) != null) {
                     String str = table.getValueAt(row, colNo).toString();
+                    String [] t = str.split("<h1>");
+                    String monhoc = t[1].split("</h1>")[0].trim();
                     if (!str.isEmpty()) {
 
 
                         for (String key : tenMHandColor.keySet()) {
-                            if (str.contains(key)) {
+
+
+
+                            if (monhoc.equals(key.trim())) {
                                 setForeground(new Color(tenMHandColor.get(key)));
                                 setBackground(new Color(tenMHandColor.get(key)));
 
