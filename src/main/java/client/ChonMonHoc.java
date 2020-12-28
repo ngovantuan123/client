@@ -37,7 +37,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
     public static BufferedWriter out;
     public static BufferedReader in;
     public static Crypto crypto;
-
+    public static JSONArray serchListMH ;
     public List<List<tkb>> convertJsonToArray(String jsonString) {
         JSONArray jsonArray = new JSONArray(jsonString);
         List<List<tkb>> result = new ArrayList<>();
@@ -96,12 +96,12 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
 
     private String receive() throws IOException {
         String input=in.readLine();
-        input = crypto.decrypt(input);
+        input = input;
         if (input == null) {
             return "";
         }
 
-        return input;
+        return crypto.decrypt(input);
     }
     public void loaddatatableChitiet(JSONArray array) {
         //tblmonhoc.setModel(new DefaultTableModel());
@@ -117,6 +117,9 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         tblchitiet.setModel(defaultTableModel);
     }
     public void loaddatatableMonHoc(JSONArray array) {
+        //clear search list
+        
+        serchListMH = array;
         //tblmonhoc.setModel(new DefaultTableModel());
         DefaultTableModel defaultTableModel = (DefaultTableModel) tblmonhoc.getModel();
         defaultTableModel.setRowCount(0);
@@ -146,10 +149,9 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         };
         tblmonhoc.setModel(model);
         model.addColumn("Select");
-        model.addColumn("Mã môn h�?c");
-        model.addColumn("Tên môn h�?c");
+        model.addColumn("Mã môn học ");
+        model.addColumn("Tên môn học");
         model.addColumn("Số tín chỉ");
-        model.addColumn("Xem");
         for (int i = 0; i < array.length(); i++) {
             JSONObject mh = (JSONObject) array.get(i);
             model.addRow(new Object[0]);
@@ -157,7 +159,6 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
             model.setValueAt(mh.get("maMH"), i, 1);
             model.setValueAt(mh.get("tenMonHoc"), i, 2);
             model.setValueAt(mh.get("soTinChi"), i, 3);
-            model.setValueAt("", i, 4);
             //Object obj[]={"",mh.get("maMH"),mh.get("tenMonHoc"),mh.get("soTinChi"),""};
             //defaultTableModel.addRow(obj);
         }
@@ -179,15 +180,21 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblmonhoc = new javax.swing.JTable();
         jTextField1 = new javax.swing.JTextField();
-        btnxepthoikhoabieu = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblchitiet = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
+        jButton1 = new javax.swing.JButton();
+        down = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        btnxepthoikhoabieu = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Ch?n khoa"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Chọn khoa"));
 
-        cbckhoa.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CT-CNTT", "DV-?i?n t? vi?n  th�ng", "GM-M?m non", "GT-Gi�o d?c ti?u h?c", "KT-S? ph?m k? thu?t", "LC-Gi�o d?c ch�nh tr?", "LU-Lu?t", "MI-Ngh? thu?t", "MO-Khoa h?c m�i tr??ng", "NN-Ngo?i ng?", "NT-Ngh? thu?t", "QD-Qu?n tr? kinh doanh", "QG-Gi�o d?c", "QP-An ninh qu?c ph�ng", "TD-To�n ?ng d?ng", "TE-T�i ch�nh k? to�n", "TN-S? ph?m khoa h?c t? nhi�n", "TT-Th? vi?n v?n ph�ng", "VD-Quan h? qu?c t?", "XH-S? ph?m Khoa h?c x� h?i" }));
+        cbckhoa.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CT-CNTT", "DV-Điện tử viễn  thông", "GM-Mầm non", "GT-Giáo dục tiểu học", "KT-Sư phạm kĩ thuật", "LC-Giáo dục chính trị", "LU-Luật", "MI-Nghệ thuật", "MO-Khoa học môi trường", "NN-Ngoại ngữ", "NT-Nghệ thuật", "QD-Quản trị kinh doanh", "QG-Giáo dục", "QP-An ninh quốc phòng", "TD-Toán ứng dụng", "TE-Tài chính kế toán", "TN-Sư phạm khoa học tự nhiên", "TT-Thư viện văn phòng", "VD-Quan hệ quốc tế", "XH-Sư phạm Khoa học xã hội" }));
         cbckhoa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbckhoaActionPerformed(evt);
@@ -227,7 +234,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
 
             },
             new String [] {
-                "Ch?n", "M� m�n h?c", "T�n m�n h?c ", "S? t�n ch?"
+                "Chọn", "Mã môn học", "Tên môn học ", "Số tín chỉ"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -274,11 +281,9 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
                 jTextField1ActionPerformed(evt);
             }
         });
-
-        btnxepthoikhoabieu.setText("X?p Th?i Kh�a Bi?u");
-        btnxepthoikhoabieu.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnxepthoikhoabieuActionPerformed(evt);
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
             }
         });
 
@@ -290,7 +295,7 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
                 {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "M� nh�m", "L?p", "S? s?", "Gi?ng vi�n", "Ph�ng", "S? ti?t", "Th?", "Th?c h�nh", "Ti?t b?t ??u"
+                "Mã nhóm", "Lớp", "Sỉ số", "Giảng viên", "Phòng", "Số tiết", "Thứ", "Thực hành", "Tiết bắt đầu"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -308,29 +313,95 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         });
         jScrollPane2.setViewportView(tblchitiet);
 
+        jScrollPane3.setViewportView(jList1);
+
+        jButton1.setText("up");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        down.setText("down");
+        down.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Add>>");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        btnxepthoikhoabieu.setText("Xếp Thời Khóa Biểu");
+        btnxepthoikhoabieu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnxepthoikhoabieuActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jButton3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton1)
+                            .addComponent(down)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(75, 75, 75)
+                        .addComponent(btnxepthoikhoabieu)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(35, 35, 35)
+                        .addComponent(jButton1)
+                        .addGap(30, 30, 30)
+                        .addComponent(down))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(73, 73, 73)
+                        .addComponent(jButton3))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnxepthoikhoabieu))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnxepthoikhoabieu)
-                .addGap(54, 54, 54))
-            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 573, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 416, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 590, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(38, 38, 38))))
+                        .addGap(38, 38, 38)))
+                .addGap(54, 54, 54))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -339,10 +410,10 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnxepthoikhoabieu)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -388,20 +459,24 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_btnxemActionPerformed
 
     private void btnxepthoikhoabieuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnxepthoikhoabieuActionPerformed
+        
         if(tblmonhoc.getModel().getRowCount() == 0){
             JOptionPane.showMessageDialog(null, "Ch?a ch?n ");
             
         }else{
             List<String> request = new ArrayList<>();
-        String ketQua ="";
-        for (int i = 0; i < tblmonhoc.getRowCount(); i++) {
-            Boolean chked = Boolean.valueOf(tblmonhoc.getValueAt(i, 0)
-                    .toString());
-            String dataCol1 = tblmonhoc.getValueAt(i, 1).toString();
-            if (chked) {
-                request.add(dataCol1);
+            for(int i=0;i<jList1.getModel().getSize();++i){
+                request.add(jList1.getModel().getElementAt(i));
             }
-        }
+        String ketQua ="";
+//        for (int i = 0; i < tblmonhoc.getRowCount(); i++) {
+//            Boolean chked = Boolean.valueOf(tblmonhoc.getValueAt(i, 0)
+//                    .toString());
+//            String dataCol1 = tblmonhoc.getValueAt(i, 1).toString();
+//            if (chked) {
+//                request.add(dataCol1);
+//            }
+//        }
         if (request.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Chưa ch�?n môn nào ... ");
         } else {
@@ -486,6 +561,109 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_tblmonhocMouseClicked
 
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+        if(serchListMH !=null) {
+            String text = jTextField1.getText();
+            JSONArray array = new JSONArray();
+            for (int i = 0; i < serchListMH.length(); i++) {
+                JSONObject mtemp = (JSONObject) serchListMH.get(i);
+                if (mtemp.get("tenMonHoc").toString().contains(text)) {
+                    array.put(mtemp);
+                }
+            }
+            DefaultTableModel defaultTableModel = (DefaultTableModel) tblmonhoc.getModel();
+            defaultTableModel.setRowCount(0);
+
+            DefaultTableModel model = new DefaultTableModel() {
+                public Class<?> getColumnClass(int column) {
+
+                    switch (column) {
+                        case 0:
+                            return Boolean.class;
+                        case 1:
+                            return String.class;
+                        case 2:
+                            return String.class;
+                        case 3:
+                            return String.class;
+                        case 4:
+                            return String.class;
+                        case 5:
+                            return String.class;
+                        case 6:
+                            return String.class;
+                        default:
+                            return String.class;
+                    }
+                }
+            };
+            tblmonhoc.setModel(model);
+            model.addColumn("Select");
+            model.addColumn("Mã môn học");
+            model.addColumn("Tên môn học");
+            model.addColumn("Số tín chỉ");
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject mh = (JSONObject) array.get(i);
+                model.addRow(new Object[0]);
+                model.setValueAt(false, i, 0);
+                model.setValueAt(mh.get("maMH"), i, 1);
+                model.setValueAt(mh.get("tenMonHoc"), i, 2);
+                model.setValueAt(mh.get("soTinChi"), i, 3);
+                //Object obj[]={"",mh.get("maMH"),mh.get("tenMonHoc"),mh.get("soTinChi"),""};
+                //defaultTableModel.addRow(obj);
+            }
+        }
+        
+    }//GEN-LAST:event_jTextField1KeyReleased
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        
+        String  selectedItem = jList1.getSelectedValue();
+        int itemindex =jList1.getSelectedIndex();
+        DefaultListModel model = (DefaultListModel)jList1.getModel();
+        if(itemindex >0){
+        model.remove(itemindex);
+        model.add(itemindex-1, selectedItem);
+        jList1.setSelectedIndex(itemindex-1);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        // khoi tao jList
+        DefaultListModel model = new DefaultListModel();
+        List<String> s = new ArrayList<>();
+        jList1.removeAll();
+        jList1.setModel(model);
+        for (int i = 0; i < tblmonhoc.getRowCount(); i++) {
+            Boolean chked = Boolean.valueOf(tblmonhoc.getValueAt(i, 0)
+                    .toString());
+            String dataCol1 = tblmonhoc.getValueAt(i, 1).toString();
+            if (chked) {
+                s.add(dataCol1);
+                
+               
+            }
+        }
+        
+        for(int i=0;i<s.size();++i){
+            model.add(i, s.get(i));
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void downActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downActionPerformed
+        // TODO add your handling code here:
+        String  selectedItem = jList1.getSelectedValue();
+        int itemindex =jList1.getSelectedIndex();
+        DefaultListModel model = (DefaultListModel)jList1.getModel();
+        if(itemindex <model.getSize()-1){
+        model.remove(itemindex);
+        model.add(itemindex+1, selectedItem);
+        jList1.setSelectedIndex(itemindex+1);
+        }
+    }//GEN-LAST:event_downActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -525,9 +703,15 @@ public final class ChonMonHoc extends javax.swing.JFrame implements Runnable {
     private javax.swing.JButton btnxem;
     private javax.swing.JButton btnxepthoikhoabieu;
     private javax.swing.JComboBox<String> cbckhoa;
+    private javax.swing.JButton down;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JList<String> jList1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTable tblchitiet;
     private javax.swing.JTable tblmonhoc;
